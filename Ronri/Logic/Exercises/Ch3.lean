@@ -37,4 +37,21 @@ theorem ex9_1b : ¬ (∀ A B : Formula String, Satisfiable (.imp A B) → Satisf
     dsimp only at hv
     contradiction
 
+/--
+練習問題9 (1) (c)
+命題: A->BがトートロジーでAが充足可能ならばBも充足可能である。
+-/
+theorem ex9_1c (A B : Formula α) : Tautology (.imp A B) → Satisfiable A → Satisfiable B := by
+  intro hAB hA
+  obtain ⟨v, hAv⟩ := hA
+  specialize hAB v
+  unfold eval at hAB
+  rw [hAv] at hAB
+  exists v
+  cases hB : eval v B with
+  | false =>
+    rw [hB] at hAB
+    exact hAB
+  | true => rfl
+
 end Ronri.PL
