@@ -54,4 +54,57 @@ theorem ex9_1c (A B : Formula α) : Tautology (.imp A B) → Satisfiable A → S
     exact hAB
   | true => rfl
 
+
+/--
+練習問題9 (2) のための定義
+定義: 結合子として→と∧のみを含むような論理式
+-/
+def OnlyImpAnd {α : Type} : Formula α → Prop
+  | .var _ => True
+  | .not _ => False
+  | .or _ _ => False
+  | .and A B => OnlyImpAnd A ∧ OnlyImpAnd B
+  | .imp A B => OnlyImpAnd A ∧ OnlyImpAnd B
+
+/--
+練習問題9 (2) のための補題
+命題: 結合子として→と∧のみを含むような論理式は、各原子式がtrueのとき必ず真になる
+-/
+lemma onlyImpAnd_eval_true (A : Formula α) : OnlyImpAnd A -> eval (fun _ => true) A = true := by
+  induction A with 
+  | var p =>
+    intro h
+    rfl
+  | not A ih =>
+    intro h
+    unfold OnlyImpAnd at h
+    exact False.elim h
+  | or A B ihA ihB =>
+    intro h
+    unfold OnlyImpAnd at h
+    exact False.elim h
+  | and A B ihA ihB =>
+    intro h
+    obtain ⟨hA, hB⟩ := h
+    specialize ihA hA
+    specialize ihB hB
+    simp only [eval]
+    rw [ihA, ihB]
+  | imp A B ihA ihB =>
+    intro h
+    obtain ⟨hA, hB⟩ := h
+    specialize ihA hA
+    specialize ihB hB
+    simp only [eval]
+    rw [ihA, ihB]
+
+/--
+練習問題9 (2)
+命題: 結合子として→と∧のみを含むような論理式はすべて充足可能である
+-/
+theorem ex9_2 (A : Formula α) : OnlyImpAnd A → Satisfiable A := by
+  intro h
+  exists (fun _ => true)
+  exact onlyImpAnd_eval_true A h
+
 end Ronri.PL
